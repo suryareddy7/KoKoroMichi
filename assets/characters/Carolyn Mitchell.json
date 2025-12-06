@@ -1,0 +1,72 @@
+{
+  "name": "Carolyn Mitchell",
+  "potential": 5000,
+  "main_attribute": "INT",
+  "exclusive_relic": "Aegis Codex",
+  "temple_description": "Carolyn Mitchell is a sorceress who defends her people with unmatched courage. Her mastery of protective magic shields allies and punishes enemies who dare approach.",
+  "active_skills": [
+    {
+      "name": "Protective Wave",
+      "damage": "0",
+      "targets": "All allies",
+      "effect": "Grants a shield absorbing 20% of max HP for 2 rounds"
+    },
+    {
+      "name": "Arcane Barrage",
+      "damage": "160% P.DMG",
+      "targets": "3 enemies",
+      "effect": "30% chance to silence for 1 round"
+    },
+    {
+      "name": "Magic Reprisal",
+      "damage": "120% P.DMG",
+      "targets": "1 enemy",
+      "effect": "Reflects 10% of received damage for 2 rounds"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Arcane Guard",
+      "effect": "Max HP +20%"
+    },
+    {
+      "name": "Sorcerer’s Insight",
+      "effect": "DMG +12%"
+    },
+    {
+      "name": "Focused Mind",
+      "effect": "CRIT +10%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Emma Williams", "Theresa King"],
+      "fate_name": "Protective Pact",
+      "effect": "HP UP 18%"
+    },
+    {
+      "angels": ["Lauren Kirk"],
+      "fate_name": "Defender’s Alliance",
+      "effect": "ACC UP 12%"
+    },
+    {
+      "angels": ["Kayla Roman"],
+      "fate_name": "Arcane Unity",
+      "effect": "DMG UP 15%"
+    },
+    {
+      "angels": ["Tracey Reyes"],
+      "fate_name": "Courageous Link",
+      "effect": "HP DOWN 5%"
+    }
+  ],
+  "gallery": [
+    "Base Carolyn Mitchell",
+    "Carolyn Mitchell Arcane Form",
+    "Aegis Codex Attire"
+  ],
+  "categories": [
+    "Sorceress",
+    "SSR 🌈✨"
+  ]
+}

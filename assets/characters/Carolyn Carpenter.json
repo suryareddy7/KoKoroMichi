@@ -1,0 +1,74 @@
+{
+  "name": "Carolyn Carpenter",
+  "potential": 3400,
+  "main_attribute": "INT",
+  "exclusive_relic": "Mindbreaker Scepter",
+  "temple_description": "Carolyn Carpenter is a psychic whose voice commands armies and silence alike. Her telepathic powers allow her to dominate the battlefield, controlling minds and foreseeing enemy movements.",
+  "active_skills": [
+    {
+      "name": "Psychic Blast",
+      "damage": "150% M.DMG",
+      "targets": "1 enemy",
+      "effect": "25% chance to Silence for 1 round"
+    },
+    {
+      "name": "Mind Shatter",
+      "damage": "130% M.DMG",
+      "targets": "2 enemies",
+      "effect": "Reduces enemy CRIT by 15% for 2 rounds"
+    },
+    {
+      "name": "Telepathic Command",
+      "damage": "0",
+      "targets": "All allies",
+      "effect": "ACC +15%, DMG +10% for 2 rounds"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Mental Fortress",
+      "effect": "Max HP +10%, DMG received -8%"
+    },
+    {
+      "name": "Clairvoyant Strike",
+      "effect": "M.DMG +12%, ACC +10%"
+    },
+    {
+      "name": "Aura of Authority",
+      "effect": "CRIT +10%, Healing +5%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Nichole Simpson", "Brianna Taylor"],
+      "fate_name": "Psychic Bond",
+      "effect": "DMG UP 15%"
+    },
+    {
+      "angels": ["Samantha Ramos", "Rebecca Evans"],
+      "fate_name": "Voices of Fate",
+      "effect": "HP DOWN 10%"
+    },
+    {
+      "angels": ["Janet Warren"],
+      "fate_name": "Shadowed Mind",
+      "effect": "ACC UP 12%"
+    },
+    {
+      "angels": ["Patricia King"],
+      "fate_name": "Commanding Presence",
+      "effect": "DMG DOWN 8%"
+    }
+  ],
+  "gallery": [
+    "Base Carolyn Carpenter",
+    "Carolyn Carpenter Psychic Robe",
+    "Carolyn Carpenter Mind Wave",
+    "Carolyn Carpenter Command Aura"
+  ],
+  "categories": [
+    "Psychic",
+    "Characters",
+    "SSR ⚡"
+  ]
+}

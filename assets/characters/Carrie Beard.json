@@ -1,0 +1,74 @@
+{
+  "name": "Carrie Beard",
+  "potential": 3350,
+  "main_attribute": "INT",
+  "exclusive_relic": "Stormcaller Staff",
+  "temple_description": "Carrie Beard is a banshee master of elemental magic and storm calling. Her wails and spells control the battlefield, summoning storms and channeling destructive energy against her foes.",
+  "active_skills": [
+    {
+      "name": "Wailing Tempest",
+      "damage": "160% M.DMG",
+      "targets": "3 enemies",
+      "effect": "25% chance to Silence for 1 round"
+    },
+    {
+      "name": "Thunderstrike",
+      "damage": "180% M.DMG",
+      "targets": "1 enemy",
+      "effect": "Inflicts Shock for 2 rounds"
+    },
+    {
+      "name": "Elemental Surge",
+      "damage": "150% M.DMG",
+      "targets": "All enemies",
+      "effect": "Reduces ACC by 10% for 2 rounds"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Storm Mastery",
+      "effect": "M.DMG +12%, CRIT +10%"
+    },
+    {
+      "name": "Banshee Wail",
+      "effect": "DMG +10%, ACC +8%"
+    },
+    {
+      "name": "Elemental Shield",
+      "effect": "Max HP +10%, DMG received -7%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Kelly Johnson", "Nichole Simpson"],
+      "fate_name": "Twilight Storm",
+      "effect": "DMG UP 15%"
+    },
+    {
+      "angels": ["Rebecca Evans", "Brianna Taylor"],
+      "fate_name": "Haunted Winds",
+      "effect": "HP DOWN 10%"
+    },
+    {
+      "angels": ["Carolyn Carpenter"],
+      "fate_name": "Arcane Tempest",
+      "effect": "ACC UP 12%"
+    },
+    {
+      "angels": ["Patricia King"],
+      "fate_name": "Storm Bond",
+      "effect": "DMG DOWN 8%"
+    }
+  ],
+  "gallery": [
+    "Base Carrie Beard",
+    "Carrie Beard Storm Robe",
+    "Carrie Beard Elemental Call",
+    "Carrie Beard Banshee Aura"
+  ],
+  "categories": [
+    "Banshee",
+    "Characters",
+    "SSR ⚡"
+  ]
+}

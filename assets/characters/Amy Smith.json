@@ -1,0 +1,66 @@
+{
+  "name": "Amy Smith",
+  "potential": 4800,
+  "main_attribute": "INT",
+  "exclusive_relic": "Crescent Wand",
+  "temple_description": "Amy Smith is a witch whose voice commands armies and silences all opposition. Her mastery over dark and arcane forces makes her a formidable tactician.",
+  "active_skills": [
+    {
+      "name": "Lunar Blast",
+      "damage": "140% P.DMG",
+      "targets": "3 enemies",
+      "effect": "20% chance to silence for 1 round"
+    },
+    {
+      "name": "Shadow Bind",
+      "damage": "120% P.DMG",
+      "targets": "2 enemies",
+      "effect": "Reduces enemy ATK by 12% for 2 rounds"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Arcane Insight",
+      "effect": "DMG +10%"
+    },
+    {
+      "name": "Witch’s Fortitude",
+      "effect": "Max HP +12%"
+    },
+    {
+      "name": "Enigmatic Aura",
+      "effect": "CRIT +8%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Carolyn Carpenter", "Elizabeth Dorsey"],
+      "fate_name": "Arcane Harmony",
+      "effect": "DMG UP 12%"
+    },
+    {
+      "angels": ["Theresa King"],
+      "fate_name": "Silent Command",
+      "effect": "ACC UP 10%"
+    },
+    {
+      "angels": ["Carolyn Mitchell"],
+      "fate_name": "Mystic Bond",
+      "effect": "HP UP 8%"
+    },
+    {
+      "angels": ["Dame Amy Smith"],
+      "fate_name": "Sacrificial Echo",
+      "effect": "HP DOWN 4%"
+    }
+  ],
+  "gallery": [
+    "Base Amy Smith",
+    "Amy Smith Witch Form",
+    "Crescent Wand Attire"
+  ],
+  "categories": [
+    "Witch",
+    "SSR 🌈✨"
+  ]
+}

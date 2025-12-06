@@ -1,0 +1,74 @@
+{
+  "name": "Ashley Huff",
+  "potential": 3550,
+  "main_attribute": "STR",
+  "exclusive_relic": "Starlight Blade",
+  "temple_description": "Ashley Huff is a warrior from the shattered lands of Mythrandel, wielding a blade of pure starlight. She fights with unmatched valor, turning the tide of battle with luminous strikes and unyielding strength.",
+  "active_skills": [
+    {
+      "name": "Radiant Slash",
+      "damage": "160% P.DMG",
+      "targets": "1 enemy",
+      "effect": "25% chance to Stun for 1 round"
+    },
+    {
+      "name": "Celestial Strike",
+      "damage": "180% P.DMG",
+      "targets": "2 enemies",
+      "effect": "Reduces enemy DMG by 10% for 2 rounds"
+    },
+    {
+      "name": "Starfall Cleave",
+      "damage": "200% P.DMG",
+      "targets": "3 enemies",
+      "effect": "Inflicts Burn for 2 rounds"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Warrior’s Resolve",
+      "effect": "STR +12%, Max HP +10%"
+    },
+    {
+      "name": "Lightbearer",
+      "effect": "CRIT +10%, DMG +8%"
+    },
+    {
+      "name": "Celestial Armor",
+      "effect": "DMG received -8%, ACC +5%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Samantha Ramos", "Rebecca Evans"],
+      "fate_name": "Guiding Light",
+      "effect": "DMG UP 15%"
+    },
+    {
+      "angels": ["Patricia King", "Brianna Duke"],
+      "fate_name": "Shadowed Valor",
+      "effect": "HP DOWN 10%"
+    },
+    {
+      "angels": ["Carolyn Carpenter"],
+      "fate_name": "Radiant Command",
+      "effect": "ACC UP 12%"
+    },
+    {
+      "angels": ["Ashley Huff"],
+      "fate_name": "Starlit Might",
+      "effect": "DMG DOWN 8%"
+    }
+  ],
+  "gallery": [
+    "Base Ashley Huff",
+    "Ashley Huff Warrior Armor",
+    "Ashley Huff Starlight Blade",
+    "Ashley Huff Radiant Aura"
+  ],
+  "categories": [
+    "Warrior",
+    "Characters",
+    "SSR ⚡"
+  ]
+}

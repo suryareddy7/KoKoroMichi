@@ -1,0 +1,74 @@
+{
+  "name": "Donna Doyle",
+  "potential": 3380,
+  "main_attribute": "INT",
+  "exclusive_relic": "Soulbinder Tome",
+  "temple_description": "Donna Doyle is a necromancer whose voice commands armies and silence alike. She raises the fallen, bending spirits to her will while dominating the battlefield with dark sorcery.",
+  "active_skills": [
+    {
+      "name": "Necrotic Blast",
+      "damage": "150% M.DMG",
+      "targets": "1 enemy",
+      "effect": "25% chance to Silence for 1 round"
+    },
+    {
+      "name": "Raise Army",
+      "damage": "0",
+      "targets": "All allies",
+      "effect": "Summons spectral minions that absorb 15% damage for 2 rounds"
+    },
+    {
+      "name": "Soul Drain",
+      "damage": "120% M.DMG",
+      "targets": "2 enemies",
+      "effect": "Heals self for 20% of damage dealt"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Master of Spirits",
+      "effect": "M.DMG +12%, Leech +8%"
+    },
+    {
+      "name": "Commanding Presence",
+      "effect": "ACC +10%, CRIT +8%"
+    },
+    {
+      "name": "Necrotic Ward",
+      "effect": "Max HP +10%, DMG received -7%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Carolyn Carpenter", "Nichole Simpson"],
+      "fate_name": "Voices of Darkness",
+      "effect": "DMG UP 15%"
+    },
+    {
+      "angels": ["Janet Warren", "Brianna Taylor"],
+      "fate_name": "Haunted Command",
+      "effect": "HP DOWN 10%"
+    },
+    {
+      "angels": ["Samantha Ramos"],
+      "fate_name": "Psychic Bond",
+      "effect": "ACC UP 12%"
+    },
+    {
+      "angels": ["Patricia King"],
+      "fate_name": "Fallen Legion",
+      "effect": "DMG DOWN 8%"
+    }
+  ],
+  "gallery": [
+    "Base Donna Doyle",
+    "Donna Doyle Necro Robe",
+    "Donna Doyle Soul Aura",
+    "Donna Doyle Spectral Command"
+  ],
+  "categories": [
+    "Necromancer",
+    "Characters",
+    "SSR ⚡"
+  ]
+}

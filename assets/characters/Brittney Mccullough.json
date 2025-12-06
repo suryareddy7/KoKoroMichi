@@ -1,0 +1,62 @@
+{
+  "name": "Brittney Mccullough",
+  "potential": 3600,
+  "main_attribute": "INT",
+  "exclusive_relic": "Eclipse Orb",
+  "temple_description": "Brittney Mccullough is a summoner bound to an ancient relic of immense power. She channels spirits to fight alongside her, turning the battlefield in her favor.",
+  "active_skills": [
+    {
+      "name": "Spirit Summon",
+      "damage": "90% P.DMG",
+      "targets": "3 enemies",
+      "effect": "Summons a spirit to attack, dealing 80% P.DMG over 2 rounds"
+    },
+    {
+      "name": "Phantom Strike",
+      "damage": "110% P.DMG",
+      "targets": "2 enemies",
+      "effect": "30% chance to silence for 1 round"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Mystic Bond",
+      "effect": "DMG +6%"
+    },
+    {
+      "name": "Spirit Guardian",
+      "effect": "Max HP +8%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Theresa King", "Donna Doyle"],
+      "fate_name": "Summoner’s Pact",
+      "effect": "DMG UP 10%"
+    },
+    {
+      "angels": ["Wendy Winters"],
+      "fate_name": "Ethereal Guidance",
+      "effect": "ACC UP 8%"
+    },
+    {
+      "angels": ["Nancy Nguyen"],
+      "fate_name": "Shared Power",
+      "effect": "HP UP 6%"
+    },
+    {
+      "angels": ["Traci Taylor"],
+      "fate_name": "Cursed Contract",
+      "effect": "DMG DOWN 5%"
+    }
+  ],
+  "gallery": [
+    "Base Brittney Mccullough",
+    "Brittney Mccullough Spirit Form",
+    "Eclipse Orb Attire"
+  ],
+  "categories": [
+    "Summoner",
+    "R 🔧"
+  ]
+}

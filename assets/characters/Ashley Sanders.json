@@ -1,0 +1,62 @@
+{
+  "name": "Ashley Sanders",
+  "potential": 4500,
+  "main_attribute": "AGI",
+  "exclusive_relic": "Moonfang Bow",
+  "temple_description": "Ashley Sanders is a huntress bound to an ancient relic of immense power, her arrows guided by instinct and enchanted by the spirits of the forest.",
+  "active_skills": [
+    {
+      "name": "Spirit Arrow",
+      "damage": "130% P.DMG",
+      "targets": "3 enemies",
+      "effect": "30% chance to bleed for 2 rounds"
+    },
+    {
+      "name": "Rapid Shot",
+      "damage": "100% P.DMG",
+      "targets": "2 enemies",
+      "effect": "Attacks twice in one round"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Forest’s Grace",
+      "effect": "ACC +10%, CRIT +5%"
+    },
+    {
+      "name": "Huntress Instinct",
+      "effect": "DMG +8%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Stephanie White", "Shelly Richard"],
+      "fate_name": "Predator’s Bond",
+      "effect": "DMG UP 12%"
+    },
+    {
+      "angels": ["Brianna Duke"],
+      "fate_name": "Spirit Guide",
+      "effect": "HP UP 10%"
+    },
+    {
+      "angels": ["Nancy Nguyen"],
+      "fate_name": "Arrow Synchrony",
+      "effect": "ACC UP 10%"
+    },
+    {
+      "angels": ["Kayla Roman"],
+      "fate_name": "Ancient Alignment",
+      "effect": "DMG DOWN 5%"
+    }
+  ],
+  "gallery": [
+    "Base Ashley Sanders",
+    "Ashley Sanders Shadow Hunt",
+    "Moonfang Archer Form"
+  ],
+  "categories": [
+    "Huntress",
+    "SR 🔥"
+  ]
+}

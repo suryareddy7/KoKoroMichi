@@ -1,0 +1,74 @@
+{
+  "name": "Janet Warren",
+  "potential": 2950,
+  "main_attribute": "STR",
+  "exclusive_relic": "Bloodfang Dagger",
+  "temple_description": "Janet Warren is a vampire with a past hidden in blood and prophecy. She stalks the shadows, striking with deadly precision while unraveling the secrets of fate.",
+  "active_skills": [
+    {
+      "name": "Crimson Slash",
+      "damage": "160% P.DMG",
+      "targets": "1 enemy",
+      "effect": "30% chance to cause Bleed for 2 rounds"
+    },
+    {
+      "name": "Shadow Step",
+      "damage": "0",
+      "targets": "Self",
+      "effect": "Evades all attacks for 1 round and increases CRIT +10%"
+    },
+    {
+      "name": "Vampiric Strike",
+      "damage": "120% P.DMG",
+      "targets": "2 enemies",
+      "effect": "Heals self for 20% of damage dealt"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Night Predator",
+      "effect": "CRIT +12%, DMG +10%"
+    },
+    {
+      "name": "Blood Pact",
+      "effect": "Leech +10%, Max HP +8%"
+    },
+    {
+      "name": "Prophetic Shadow",
+      "effect": "ACC +10%, DMG received -5%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Rebecca Evans", "Samantha Ramos"],
+      "fate_name": "Blood Oath",
+      "effect": "DMG UP 15%"
+    },
+    {
+      "angels": ["Nichole Simpson", "Brianna Taylor"],
+      "fate_name": "Haunted Past",
+      "effect": "Max HP -10%"
+    },
+    {
+      "angels": ["Patricia King"],
+      "fate_name": "Shadow Hunt",
+      "effect": "ACC UP 12%"
+    },
+    {
+      "angels": ["Shelly Richard", "Lauren Kirk"],
+      "fate_name": "Fateful Strike",
+      "effect": "HP DOWN 8%"
+    }
+  ],
+  "gallery": [
+    "Base Janet Warren",
+    "Janet Warren Vampire Cloak",
+    "Janet Warren Crimson Aura",
+    "Janet Warren Blood Vision"
+  ],
+  "categories": [
+    "Vampire",
+    "Characters",
+    "SR 🔥"
+  ]
+}

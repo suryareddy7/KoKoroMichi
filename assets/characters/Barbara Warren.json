@@ -1,0 +1,72 @@
+{
+  "name": "Barbara Warren",
+  "potential": 5200,
+  "main_attribute": "STR",
+  "exclusive_relic": "Moonstone Scythe",
+  "temple_description": "Barbara Warren, the Blood Countess, is a paladin from the shattered lands of Abyssoria, wielding a scythe made of moonstone. Her presence inspires allies and terrifies foes with her divine might.",
+  "active_skills": [
+    {
+      "name": "Divine Slash",
+      "damage": "180% P.DMG",
+      "targets": "2 enemies",
+      "effect": "30% chance to cause bleeding for 2 rounds"
+    },
+    {
+      "name": "Sacred Barrier",
+      "damage": "0",
+      "targets": "All allies",
+      "effect": "Grants shield absorbing 15% of max HP for 2 rounds"
+    },
+    {
+      "name": "Retribution Strike",
+      "damage": "150% P.DMG",
+      "targets": "1 enemy",
+      "effect": "Reflects 10% of damage received for 1 round"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Holy Resilience",
+      "effect": "Max HP +20%"
+    },
+    {
+      "name": "Blade Mastery",
+      "effect": "DMG +15%"
+    },
+    {
+      "name": "Divine Aura",
+      "effect": "CRIT +8%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Andrea Brown", "April Smith"],
+      "fate_name": "Paladin’s Bond",
+      "effect": "HP UP 20%"
+    },
+    {
+      "angels": ["Shelly Richard"],
+      "fate_name": "Moonlit Alliance",
+      "effect": "DMG UP 15%"
+    },
+    {
+      "angels": ["Ashley Huff"],
+      "fate_name": "Shattered Oath",
+      "effect": "ACC UP 12%"
+    },
+    {
+      "angels": ["Barbara Warren"],
+      "fate_name": "Self Sacrifice",
+      "effect": "HP DOWN 5%"
+    }
+  ],
+  "gallery": [
+    "Base Barbara Warren",
+    "Barbara Warren Paladin Form",
+    "Moonstone Scythe Attire"
+  ],
+  "categories": [
+    "Paladin",
+    "UR 🌟"
+  ]
+}

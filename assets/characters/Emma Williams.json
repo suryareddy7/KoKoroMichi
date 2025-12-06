@@ -1,0 +1,72 @@
+{
+  "name": "Emma Williams",
+  "potential": 4500,
+  "main_attribute": "INT",
+  "exclusive_relic": "Crimson Grimoire",
+  "temple_description": "Emma Williams is a witch from the shattered lands of Crimsonreach, wielding a tome of forbidden knowledge. Her spells warp reality and bend the battlefield to her will.",
+  "active_skills": [
+    {
+      "name": "Forbidden Flame",
+      "damage": "130% P.DMG",
+      "targets": "3 enemies",
+      "effect": "40% chance to burn for 2 rounds"
+    },
+    {
+      "name": "Reality Twist",
+      "damage": "0",
+      "targets": "All enemies",
+      "effect": "Reduces ACC by 10% for 2 rounds"
+    },
+    {
+      "name": "Arcane Blast",
+      "damage": "150% P.DMG",
+      "targets": "1 enemy",
+      "effect": "Ignores 20% DEF"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Dark Insight",
+      "effect": "DMG +10%"
+    },
+    {
+      "name": "Mana Reservoir",
+      "effect": "Max HP +15%"
+    },
+    {
+      "name": "Arcane Resonance",
+      "effect": "CRIT +8%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Carolyn Mitchell", "Nichole Simpson"],
+      "fate_name": "Witch’s Pact",
+      "effect": "DMG UP 12%"
+    },
+    {
+      "angels": ["Elizabeth Dorsey"],
+      "fate_name": "Cursed Knowledge",
+      "effect": "ACC UP 10%"
+    },
+    {
+      "angels": ["Amy Smith"],
+      "fate_name": "Forbidden Alliance",
+      "effect": "HP UP 12%"
+    },
+    {
+      "angels": ["Kayla Roman"],
+      "fate_name": "Risky Invocation",
+      "effect": "HP DOWN 5%"
+    }
+  ],
+  "gallery": [
+    "Base Emma Williams",
+    "Emma Williams Crimson Form",
+    "Tome of Forbidden Knowledge"
+  ],
+  "categories": [
+    "Witch",
+    "SR 🔥"
+  ]
+}

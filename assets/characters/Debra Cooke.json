@@ -1,0 +1,66 @@
+{
+  "name": "Debra Cooke",
+  "potential": 4200,
+  "main_attribute": "WIS",
+  "exclusive_relic": "Harmony Lute",
+  "temple_description": "Debra Cooke is a bard whose music tames even the wildest of mythical beasts. Her Harmony Lute resonates with nature, calling allies to her side.",
+  "active_skills": [
+    {
+      "name": "Beast's Call",
+      "damage": "100% P.DMG",
+      "targets": "3 enemies",
+      "effect": "30% chance to charm enemy for 1 round"
+    },
+    {
+      "name": "Melody of Strength",
+      "damage": "0",
+      "targets": "All allies",
+      "effect": "ATK +10% for 2 rounds"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Soothing Aura",
+      "effect": "Max HP +10%"
+    },
+    {
+      "name": "Nature’s Bond",
+      "effect": "DMG +8%"
+    },
+    {
+      "name": "Inspiring Presence",
+      "effect": "ACC +10%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Stephanie White", "Traci Taylor"],
+      "fate_name": "Beast Whisperers",
+      "effect": "DMG UP 12%"
+    },
+    {
+      "angels": ["Shelly Richard"],
+      "fate_name": "Resonant Melody",
+      "effect": "ACC UP 10%"
+    },
+    {
+      "angels": ["Kelly Johnson"],
+      "fate_name": "Harmonic Bond",
+      "effect": "HP UP 8%"
+    },
+    {
+      "angels": ["Debra Cooke"],
+      "fate_name": "Echoed Sacrifice",
+      "effect": "HP DOWN 4%"
+    }
+  ],
+  "gallery": [
+    "Base Debra Cooke",
+    "Debra Cooke Bard Form",
+    "Harmony Lute Attire"
+  ],
+  "categories": [
+    "Bard",
+    "SR 🔥"
+  ]
+}

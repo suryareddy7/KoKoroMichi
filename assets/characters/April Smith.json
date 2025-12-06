@@ -1,0 +1,66 @@
+{
+  "name": "April Smith",
+  "potential": 4800,
+  "main_attribute": "STR",
+  "exclusive_relic": "Divine Aegis",
+  "temple_description": "April Smith is a guardian chosen by the gods to restore balance. Her shield shines with divine light, protecting allies and repelling the forces of darkness.",
+  "active_skills": [
+    {
+      "name": "Celestial Strike",
+      "damage": "140% P.DMG",
+      "targets": "3 enemies",
+      "effect": "30% chance to stun for 1 round"
+    },
+    {
+      "name": "Aegis Barrier",
+      "damage": "0",
+      "targets": "All allies",
+      "effect": "Grants shield absorbing 15% of max HP for 2 rounds"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Divine Protection",
+      "effect": "Max HP +12%"
+    },
+    {
+      "name": "Guardian Spirit",
+      "effect": "DMG +10%"
+    },
+    {
+      "name": "Resolute Heart",
+      "effect": "ACC +8%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Lauren Kirk", "Makayla Gutierrez"],
+      "fate_name": "Sacred Bond",
+      "effect": "HP UP 15%"
+    },
+    {
+      "angels": ["Tracey Reyes"],
+      "fate_name": "Shield Harmony",
+      "effect": "ACC UP 10%"
+    },
+    {
+      "angels": ["Sandra Goodwin"],
+      "fate_name": "Divine Convergence",
+      "effect": "DMG UP 12%"
+    },
+    {
+      "angels": ["Nancy Nguyen"],
+      "fate_name": "Balanced Fate",
+      "effect": "HP DOWN 5%"
+    }
+  ],
+  "gallery": [
+    "Base April Smith",
+    "April Smith Guardian Form",
+    "Divine Aegis Armor"
+  ],
+  "categories": [
+    "Guardian",
+    "SR 🔥"
+  ]
+}

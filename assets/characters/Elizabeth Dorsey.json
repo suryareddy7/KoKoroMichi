@@ -1,0 +1,72 @@
+{
+  "name": "Elizabeth Dorsey",
+  "potential": 5000,
+  "main_attribute": "INT",
+  "exclusive_relic": "Voice of Silence",
+  "temple_description": "Elizabeth Dorsey is a sorceress whose voice commands armies and silences opposition alike. Her presence on the battlefield is both feared and revered.",
+  "active_skills": [
+    {
+      "name": "Sonic Blast",
+      "damage": "150% P.DMG",
+      "targets": "3 enemies",
+      "effect": "30% chance to silence for 2 rounds"
+    },
+    {
+      "name": "Arcane Shout",
+      "damage": "180% P.DMG",
+      "targets": "2 enemies",
+      "effect": "Reduces enemy DEF by 15% for 2 rounds"
+    },
+    {
+      "name": "Commanding Voice",
+      "damage": "0",
+      "targets": "All allies",
+      "effect": "Boosts ATK +12% for 2 rounds"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Intellectual Prowess",
+      "effect": "DMG +12%"
+    },
+    {
+      "name": "Mystic Fortitude",
+      "effect": "Max HP +15%"
+    },
+    {
+      "name": "Aura of Command",
+      "effect": "CRIT +10%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Carolyn Carpenter", "Carolyn Mitchell"],
+      "fate_name": "Sorcerous Harmony",
+      "effect": "DMG UP 15%"
+    },
+    {
+      "angels": ["Theresa King"],
+      "fate_name": "Silent Alliance",
+      "effect": "ACC UP 12%"
+    },
+    {
+      "angels": ["Tracey Reyes"],
+      "fate_name": "Arcane Bond",
+      "effect": "HP UP 10%"
+    },
+    {
+      "angels": ["Kayla Roman"],
+      "fate_name": "Commanding Presence",
+      "effect": "HP DOWN 5%"
+    }
+  ],
+  "gallery": [
+    "Base Elizabeth Dorsey",
+    "Elizabeth Dorsey Sorceress Form",
+    "Voice of Silence Attire"
+  ],
+  "categories": [
+    "Sorceress",
+    "SSR 🌈✨"
+  ]
+}

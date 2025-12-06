@@ -1,0 +1,62 @@
+{
+  "name": "Andrea Brown",
+  "potential": 3200,
+  "main_attribute": "STR",
+  "exclusive_relic": "Bloodshield Gauntlets",
+  "temple_description": "Andrea Brown is a guardian with a past hidden in blood and prophecy. She wields her gauntlets to defend her allies and crush enemies with unmatched strength.",
+  "active_skills": [
+    {
+      "name": "Guardian Strike",
+      "damage": "100% P.DMG",
+      "targets": "1 enemy",
+      "effect": "20% chance to stun for 1 round"
+    },
+    {
+      "name": "Shield Bash",
+      "damage": "80% P.DMG",
+      "targets": "2 enemies",
+      "effect": "Reduces enemy ACC by 10% for 1 round"
+    }
+  ],
+  "passive_skills": [
+    {
+      "name": "Iron Guard",
+      "effect": "Max HP +8%"
+    },
+    {
+      "name": "Battle Hardened",
+      "effect": "DMG +6%"
+    }
+  ],
+  "fate": [
+    {
+      "angels": ["Donna Doyle", "Rebecca Evans"],
+      "fate_name": "Protector’s Oath",
+      "effect": "HP UP 8%"
+    },
+    {
+      "angels": ["Ashley Huff"],
+      "fate_name": "Warrior’s Bond",
+      "effect": "DMG UP 6%"
+    },
+    {
+      "angels": ["Shelly Richard"],
+      "fate_name": "Shared Valor",
+      "effect": "ACC UP 5%"
+    },
+    {
+      "angels": ["Patricia King"],
+      "fate_name": "Guardian’s Burden",
+      "effect": "HP DOWN 4%"
+    }
+  ],
+  "gallery": [
+    "Base Andrea Brown",
+    "Andrea Brown Battle Form",
+    "Bloodshield Gauntlets Attire"
+  ],
+  "categories": [
+    "Guardian",
+    "R 🔧"
+  ]
+}
