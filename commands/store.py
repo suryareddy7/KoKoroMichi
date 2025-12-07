@@ -1,611 +1,409 @@
-# Store System Commands for KoKoroMichi Advanced Bot
+# Store Commands for KoKoroMichi Advanced Bot
 import discord
 from discord.ext import commands
-from typing import Optional, Dict, List, Any
-import random
-import math
-from datetime import datetime, timezone, timedelta
+from discord import ui
+from typing import Optional, Dict, List
+from datetime import datetime
 
-from core.data_manager import data_manager
 from core.embed_utils import EmbedBuilder
-from core.config import FEATURES
-from utils.helpers import format_number
-import logging
+from core.store_models import VipTierSpec, TransactionStatus
+from services.store_service import StoreService
+from utils.helpers import format_number, is_admin
 
-logger = logging.getLogger(__name__)
+
+class StorePaginationView(ui.View):
+    """Pagination view for store catalog browsing."""
+
+    def __init__(self, store_service: StoreService, user_id: str, category: Optional[str] = None, currency: str = "gold", per_page: int = 5):
+        super().__init__(timeout=300.0)
+        self.store_service = store_service
+        self.user_id = user_id
+        self.category = category
+        self.currency = currency
+        self.per_page = per_page
+        self.current_page = 1
+        self.total_pages = 1
+        self.embed_builder = EmbedBuilder()
+
+    async def fetch_page(self, page: int) -> Dict:
+        """Fetch a page of items from the store."""
+        return self.store_service.get_catalog(page=page, per_page=self.per_page, category=self.category)
+
+    async def update_page_display(self, interaction: discord.Interaction, page: int) -> None:
+        """Update the embed to show the requested page."""
+        page_data = await self.fetch_page(page)
+        items = page_data.get("items", [])
+        self.total_pages = (page_data["total"] + self.per_page - 1) // self.per_page
+
+        if not items:
+            embed = self.embed_builder.warning_embed("No Items", "No items found on this page.")
+            await interaction.response.edit_message(embed=embed, view=self)
+            return
+
+        embed = self.embed_builder.create_embed(
+            title="🛍️ Store Catalog",
+            description=f"Page {page}/{self.total_pages} | Category: {self.category or 'All'}",
+            color=0x0099CC,
+        )
+
+        for item in items:
+            # Compute price for this user (without VIP for now; extend with user VIP tier lookup)
+            price_snap = self.store_service.preview_price(
+                item["id"],
+                quantity=1,
+                vip_tier=None,
+                currency=self.currency,
+            )
+
+            # Format price with indicators
+            price_text = f"{format_number(price_snap.final_price)} {self.currency}"
+            if price_snap.inflation_multiplier > 1.01:
+                price_text += " 📈 (inflated)"
+
+            stock_text = "∞" if item.get("stock") is None else format_number(item.get("stock", 0))
+
+            embed.add_field(
+                name=f"{item['name']} (ID: `{item['id']}`)",
+                value=f"{item.get('description', '')}\n"
+                f"💰 **{price_text}**\n"
+                f"📦 Stock: {stock_text}",
+                inline=False,
+            )
+
+        embed.set_footer(text=f"Use !buy <item_id> <quantity> [currency] to purchase | Page {page}/{self.total_pages}")
+        self.current_page = page
+
+        # Update button states
+        self.update_buttons()
+
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    def update_buttons(self) -> None:
+        """Enable/disable navigation buttons based on current page."""
+        self.prev_button.disabled = self.current_page <= 1
+        self.next_button.disabled = self.current_page >= self.total_pages
+
+    @ui.button(label="◀ Previous", style=discord.ButtonStyle.blurple)
+    async def prev_button(self, interaction: discord.Interaction, button: ui.Button) -> None:
+        await interaction.response.defer()
+        if self.current_page > 1:
+            await self.update_page_display(interaction, self.current_page - 1)
+
+    @ui.button(label="Next ▶", style=discord.ButtonStyle.blurple)
+    async def next_button(self, interaction: discord.Interaction, button: ui.Button) -> None:
+        await interaction.response.defer()
+        if self.current_page < self.total_pages:
+            await self.update_page_display(interaction, self.current_page + 1)
+
 
 class StoreCommands(commands.Cog):
-    """Advanced store with dynamic pricing and VIP discounts"""
-    
+    """Store system for buying items."""
+
     def __init__(self, bot):
         self.bot = bot
+        self.store_service = StoreService()
         self.embed_builder = EmbedBuilder()
-        
-        # Store items with base prices
-        self.store_items = {
-            "healing_potion": {
-                "name": "Healing Potion",
-                "description": "Restores 500 HP to your character",
-                "base_price": 200,
-                "category": "consumables",
-                "emoji": "🧪",
-                "effect": {"type": "heal", "value": 500}
-            },
-            "experience_boost": {
-                "name": "Experience Elixir",
-                "description": "Grants 1000 bonus XP",
-                "base_price": 500,
-                "category": "consumables", 
-                "emoji": "⭐",
-                "effect": {"type": "xp", "value": 1000}
-            },
-            "strength_enhancer": {
-                "name": "Strength Enhancer",
-                "description": "Permanently increases ATK by 10",
-                "base_price": 1000,
-                "category": "enhancements",
-                "emoji": "⚔️",
-                "effect": {"type": "stat_boost", "stat": "atk", "value": 10}
-            },
-            "defense_crystal": {
-                "name": "Defense Crystal",
-                "description": "Permanently increases DEF by 8",
-                "base_price": 1000,
-                "category": "enhancements",
-                "emoji": "🛡️",
-                "effect": {"type": "stat_boost", "stat": "def", "value": 8}
-            },
-            "vitality_gem": {
-                "name": "Vitality Gem",
-                "description": "Permanently increases HP by 50",
-                "base_price": 800,
-                "category": "enhancements",
-                "emoji": "❤️",
-                "effect": {"type": "stat_boost", "stat": "hp", "value": 50}
-            },
-            "arena_pass": {
-                "name": "Arena Pass",
-                "description": "Grants access to premium arena battles",
-                "base_price": 2000,
-                "category": "passes",
-                "emoji": "🎫",
-                "effect": {"type": "access", "feature": "premium_arena"}
-            },
-            "summon_ticket": {
-                "name": "Summon Ticket",
-                "description": "Free character summon with 2x rare rates",
-                "base_price": 1500,
-                "category": "tickets",
-                "emoji": "🎟️",
-                "effect": {"type": "summon", "bonus": "double_rates"}
-            },
-            "affection_candy": {
-                "name": "Affection Candy",
-                "description": "Increases character affection by 10",
-                "base_price": 300,
-                "category": "consumables",
-                "emoji": "🍭",
-                "effect": {"type": "affection", "value": 10}
-            },
-            "element_shard": {
-                "name": "Element Shard",
-                "description": "Change your character's element",
-                "base_price": 5000,
-                "category": "special",
-                "emoji": "🔮",
-                "effect": {"type": "element_change"}
-            },
-            "mystery_box": {
-                "name": "Mystery Box",
-                "description": "Contains random valuable items",
-                "base_price": 2500,
-                "category": "mystery",
-                "emoji": "📦",
-                "effect": {"type": "random_rewards"}
-            }
-        }
-        
-        # VIP discount tiers
-        self.vip_discounts = {
-            "consumables": 0.10,  # 10% discount
-            "enhancements": 0.15, # 15% discount
-            "passes": 0.20,       # 20% discount
-            "tickets": 0.25,      # 25% discount
-            "special": 0.30       # 30% discount
-        }
-    
-    @commands.command(name="store", aliases=["shop", "market"])
-    async def view_store(self, ctx, category: str = None):
-        """Browse the store by category with dynamic pricing"""
+
+    @commands.command(name="store", aliases=["shop"])
+    async def store_browse(self, ctx, page: int = 1, category: Optional[str] = None, currency: str = "gold"):
+        """Browse the store catalog with pagination.
+
+        Usage:
+            !store [page] [category] [currency]
+            !store 1 consumable gold
+            !store 2 loot gems
+        """
         try:
-            user_data = data_manager.get_user_data(str(ctx.author.id))
-            
-            # Update daily pricing
-            self.update_daily_pricing()
-            
-            if not category:
-                # Show categories
-                embed = self.create_category_menu()
+            # Validate page
+            if page < 1:
+                page = 1
+
+            # Create pagination view
+            view = StorePaginationView(self.store_service, str(ctx.author.id), category=category, currency=currency)
+
+            # Fetch and display first page
+            page_data = await view.fetch_page(page)
+            items = page_data.get("items", [])
+            view.total_pages = (page_data["total"] + view.per_page - 1) // view.per_page
+
+            if not items:
+                embed = self.embed_builder.warning_embed("No Items", "No items found on this page.")
                 await ctx.send(embed=embed)
                 return
-            
-            # Filter items by category
-            category_items = {k: v for k, v in self.store_items.items() if v["category"] == category.lower()}
-            
-            if not category_items:
-                embed = self.embed_builder.error_embed(
-                    "Invalid Category",
-                    f"Category '{category}' not found. Use `!store` to see all categories."
-                )
-                await ctx.send(embed=embed)
-                return
-            
+
             embed = self.embed_builder.create_embed(
-                title="🏪 KoKoroMichi Store",
-                description=f"Premium items and enhancements • Page {page}/{total_pages}",
-                color=0x32CD32
+                title="🛍️ Store Catalog",
+                description=f"Page {page}/{view.total_pages} | Category: {category or 'All'}",
+                color=0x0099CC,
             )
-            
-            # Add user's current resources
-            user_gold = user_data.get("gold", 0)
-            user_gems = user_data.get("gems", 0)
-            is_vip = self.check_vip_status(user_data)
-            
-            embed.add_field(
-                name="💰 Your Resources",
-                value=f"Gold: {format_number(user_gold)}\n"
-                      f"Gems: {format_number(user_gems)}\n"
-                      f"VIP Status: {'✅ Active' if is_vip else '❌ Inactive'}",
-                inline=True
-            )
-            
-            # Show items
-            for item_id, item_data in page_items:
-                current_price = self.calculate_current_price(item_id, item_data, is_vip)
-                price_change = self.get_price_change_indicator(item_id, item_data["base_price"])
-                
+
+            for item in items:
+                price_snap = self.store_service.preview_price(
+                    item["id"],
+                    quantity=1,
+                    vip_tier=None,
+                    currency=currency,
+                )
+
+                price_text = f"{format_number(price_snap.final_price)} {currency}"
+                if price_snap.inflation_multiplier > 1.01:
+                    price_text += " 📈 (inflated)"
+
+                stock_text = "∞" if item.get("stock") is None else format_number(item.get("stock", 0))
+
                 embed.add_field(
-                    name=f"{item_data['emoji']} {item_data['name']}",
-                    value=f"*{item_data['description']}*\n"
-                          f"💰 **{format_number(current_price)} gold** {price_change}\n"
-                          f"Use: `!buy {item_id}`",
-                    inline=True
+                    name=f"{item['name']} (ID: `{item['id']}`)",
+                    value=f"{item.get('description', '')}\n"
+                    f"💰 **{price_text}**\n"
+                    f"📦 Stock: {stock_text}",
+                    inline=False,
                 )
-            
-            # Navigation info
-            embed.add_field(
-                name="📄 Navigation",
-                value=f"Use `!store {page+1}` for next page\n"
-                      f"Items refresh daily at 5:30 UTC" + 
-                      ("\n🌟 VIP discounts active!" if is_vip else ""),
-                inline=False
-            )
-            
-            await ctx.send(embed=embed)
-            await self.log_store_activity(ctx, "browse", f"page {page}")
-            
+
+            embed.set_footer(text=f"Use !buy <item_id> <quantity> [currency] to purchase | Page {page}/{view.total_pages}")
+            view.current_page = page
+            view.update_buttons()
+
+            await ctx.send(embed=embed, view=view)
+
         except Exception as e:
-            embed = self.embed_builder.error_embed(
-                "Store Error",
-                "Unable to load store. Please try again later."
-            )
+            embed = self.embed_builder.error_embed("Store Error", f"Unable to load store: {str(e)}")
             await ctx.send(embed=embed)
-            print(f"Store command error: {e}")
-    
-    def create_category_menu(self) -> discord.Embed:
-        """Create store category selection menu"""
-        embed = self.embed_builder.create_embed(
-            title="🏪 KoKoroMichi Store - Categories",
-            description="Choose a category to browse items. Each category resets prices daily at 5:30 UTC.",
-            color=0x32CD32
-        )
-        
-        # Get unique categories
-        categories = {}
-        for item_data in self.store_items.values():
-            category = item_data["category"]
-            if category not in categories:
-                categories[category] = {"count": 0, "emoji": "📦"}
-            categories[category]["count"] += 1
-        
-        # Category emojis
-        category_emojis = {
-            "consumables": "🧪",
-            "enhancements": "⚔️", 
-            "passes": "🎫",
-            "tickets": "🎟️",
-            "special": "🔮",
-            "mystery": "📦"
-        }
-        
-        # Add categories
-        for i, (category, data) in enumerate(categories.items(), 1):
-            emoji = category_emojis.get(category, "📦")
-            embed.add_field(
-                name=f"{emoji} {i}. {category.title()}",
-                value=f"{data['count']} items available\nUse: `!store {category}`",
-                inline=True
-            )
-        
-        embed.add_field(
-            name="💡 How to Buy",
-            value="1️⃣ `!store <category>` - Browse category\n2️⃣ `!buy <item_id> <amount>` - Purchase item\n3️⃣ Choose currency (gold/gems)",
-            inline=False
-        )
-        
-        return embed
-    
-    @commands.command(name="buy", aliases=["purchase"])
-    async def buy_item(self, ctx, item_id: str, quantity: int = 1):
-        """Purchase items from the store"""
+            print(f"Store browse error: {e}")
+
+    @commands.command(name="buy")
+    async def buy_item(self, ctx, item_id: str, quantity: int = 1, currency: str = "gold"):
+        """Purchase an item from the store.
+
+        Usage:
+            !buy health_potion_small 1 gold
+            !buy treasure_chest 2 gems
+        """
         try:
-            if item_id not in self.store_items:
-                embed = self.embed_builder.error_embed(
-                    "Item Not Found",
-                    f"Item '{item_id}' not found in store. Use `!store` to browse items."
-                )
+            quantity = max(1, quantity)
+            user_id = str(ctx.author.id)
+
+            # Load user VIP tier (if applicable; for now, no VIP)
+            vip_tier = None
+
+            # Execute purchase
+            result = await self.store_service.purchase_item(
+                user_id=user_id,
+                item_id=item_id,
+                quantity=quantity,
+                currency=currency,
+                vip_tier=vip_tier,
+                simulate_provider_offline=False,
+            )
+
+            if not result.success:
+                embed = self.embed_builder.warning_embed("Purchase Failed", result.message or "Unable to complete purchase.")
                 await ctx.send(embed=embed)
                 return
-            
-            if quantity < 1 or quantity > 99:
-                embed = self.embed_builder.error_embed(
-                    "Invalid Quantity",
-                    "You can buy between 1 and 99 items at once."
-                )
+
+            # Success embed
+            item = self.store_service.get_item(item_id)
+            if not item:
+                embed = self.embed_builder.error_embed("Item Error", "Item not found after purchase.")
                 await ctx.send(embed=embed)
                 return
-            
-            user_data = data_manager.get_user_data(str(ctx.author.id))
-            item_data = self.store_items[item_id]
-            is_vip = self.check_vip_status(user_data)
-            
-            # Calculate total cost
-            unit_price = self.calculate_current_price(item_id, item_data, is_vip)
-            total_cost = unit_price * quantity
-            
-            # Check if user has enough gold
-            user_gold = user_data.get("gold", 0)
-            if user_gold < total_cost:
-                embed = self.embed_builder.error_embed(
-                    "Insufficient Gold",
-                    f"You need {format_number(total_cost)} gold but only have {format_number(user_gold)}."
-                )
-                await ctx.send(embed=embed)
-                return
-            
-            # Process purchase
-            user_data["gold"] -= total_cost
-            
-            # Apply item effects
-            for _ in range(quantity):
-                self.apply_item_effect(user_data, item_data)
-            
-            # Update purchase history
-            self.update_purchase_stats(user_data, item_id, quantity, total_cost)
-            
-            # Save data
-            data_manager.save_user_data(str(ctx.author.id), user_data)
-            
-            # Create purchase confirmation
+
             embed = self.embed_builder.success_embed(
                 "Purchase Successful!",
-                f"You bought **{quantity}x {item_data['name']}**!"
+                f"You bought {quantity}x **{item['name']}** for {format_number(result.new_balances[currency])} {currency}.",
             )
-            
             embed.add_field(
-                name="💰 Transaction",
-                value=f"**Item:** {item_data['emoji']} {item_data['name']}\n"
-                      f"**Quantity:** {quantity}\n"
-                      f"**Unit Price:** {format_number(unit_price)} gold\n"
-                      f"**Total Cost:** {format_number(total_cost)} gold",
-                inline=True
+                name="Transaction ID",
+                value=f"`{result.tx_id}`",
+                inline=False,
             )
-            
             embed.add_field(
-                name="💳 Account Balance",
-                value=f"**Remaining Gold:** {format_number(user_data['gold'])}\n"
-                      f"**VIP Status:** {'✅ Active' if is_vip else '❌ None'}",
-                inline=True
+                name="New Balance",
+                value=f"💰 Gold: {format_number(result.new_balances.get('gold', 0))}\n"
+                f"💎 Gems: {format_number(result.new_balances.get('gems', 0))}",
+                inline=True,
             )
-            
-            # Show item effect
-            effect_text = self.get_effect_description(item_data["effect"], quantity)
-            embed.add_field(
-                name="✨ Item Effect",
-                value=effect_text,
-                inline=False
-            )
-            
-            await ctx.send(embed=embed)
-            await self.log_store_activity(ctx, "purchase", f"{quantity}x {item_data['name']}")
-            
-        except Exception as e:
-            embed = self.embed_builder.error_embed(
-                "Purchase Error",
-                "Unable to complete purchase. Please try again."
-            )
-            await ctx.send(embed=embed)
-            print(f"Buy command error: {e}")
-    
-    @commands.command(name="store_inventory", aliases=["store_items", "bag"])
-    async def view_inventory(self, ctx):
-        """View purchased items and consumables"""
-        try:
-            user_data = data_manager.get_user_data(str(ctx.author.id))
-            inventory = user_data.get("inventory", {})
-            
-            embed = self.embed_builder.create_embed(
-                title="🎒 Your Inventory",
-                description="Items you've purchased and collected",
-                color=0x4169E1
-            )
-            
-            if not inventory:
+            if "offline" in result.message.lower():
                 embed.add_field(
-                    name="📦 Empty Inventory",
-                    value="You don't have any items yet. Visit the `!store` to buy some!",
-                    inline=False
+                    name="⚠️ Offline Mode",
+                    value="This purchase was recorded locally and will sync when the provider is available.",
+                    inline=False,
                 )
-            else:
-                # Group items by category
-                categories = {}
-                for item_id, count in inventory.items():
-                    if count > 0:
-                        item_data = self.store_items.get(item_id, {})
-                        category = item_data.get("category", "other")
-                        if category not in categories:
-                            categories[category] = []
-                        categories[category].append((item_id, item_data, count))
-                
-                # Display by category
-                for category, items in categories.items():
-                    category_text = ""
-                    for item_id, item_data, count in items:
-                        emoji = item_data.get("emoji", "📦")
-                        name = item_data.get("name", item_id)
-                        category_text += f"{emoji} **{name}** x{count}\n"
-                    
-                    embed.add_field(
-                        name=f"📋 {category.title()}",
-                        value=category_text,
-                        inline=True
-                    )
-            
-            # Show purchase statistics
-            purchase_stats = user_data.get("purchase_stats", {})
-            total_spent = purchase_stats.get("total_gold_spent", 0)
-            total_purchases = purchase_stats.get("total_purchases", 0)
-            
-            embed.add_field(
-                name="📊 Purchase History",
-                value=f"**Total Spent:** {format_number(total_spent)} gold\n"
-                      f"**Total Purchases:** {total_purchases}\n"
-                      f"**VIP Status:** {'✅ Active' if self.check_vip_status(user_data) else '❌ Inactive'}",
-                inline=False
-            )
-            
+
             await ctx.send(embed=embed)
-            await self.log_store_activity(ctx, "inventory_check")
-            
+
         except Exception as e:
-            embed = self.embed_builder.error_embed(
-                "Inventory Error",
-                "Unable to load inventory. Please try again."
-            )
+            embed = self.embed_builder.error_embed("Purchase Error", f"An error occurred: {str(e)}")
             await ctx.send(embed=embed)
-            print(f"Inventory command error: {e}")
-    
-    def calculate_current_price(self, item_id: str, item_data: Dict, is_vip: bool) -> int:
-        """Calculate current price with dynamic pricing and VIP discounts"""
-        base_price = item_data["base_price"]
-        
-        # Get current day's purchase count for price inflation
-        store_data = data_manager.get_game_data().get("store_data", {})
-        daily_data = store_data.get("daily_purchases", {})
-        today = datetime.now(timezone.utc).date().isoformat()
-        
-        if daily_data.get("date") != today:
-            daily_data = {"date": today, "item_counts": {}}
-        
-        purchase_count = daily_data["item_counts"].get(item_id, 0)
-        
-        # Dynamic pricing: 5% increase per purchase
-        inflation_multiplier = 1 + (purchase_count * 0.05)
-        inflated_price = int(base_price * inflation_multiplier)
-        
-        # Apply VIP discount
-        if is_vip:
-            category = item_data.get("category", "other")
-            discount = self.vip_discounts.get(category, 0)
-            inflated_price = int(inflated_price * (1 - discount))
-        
-        return inflated_price
-    
-    def get_price_change_indicator(self, item_id: str, base_price: int) -> str:
-        """Get price change indicator"""
-        store_data = data_manager.get_game_data().get("store_data", {})
-        daily_data = store_data.get("daily_purchases", {})
-        today = datetime.now(timezone.utc).date().isoformat()
-        
-        if daily_data.get("date") != today:
-            return ""
-        
-        purchase_count = daily_data["item_counts"].get(item_id, 0)
-        
-        if purchase_count == 0:
-            return ""
-        elif purchase_count <= 2:
-            return "📈"
-        elif purchase_count <= 5:
-            return "📈📈"
-        else:
-            return "📈📈📈"
-    
-    def check_vip_status(self, user_data: Dict) -> bool:
-        """Check if user has VIP status"""
-        # VIP based on total spending or special items
-        purchase_stats = user_data.get("purchase_stats", {})
-        total_spent = purchase_stats.get("total_gold_spent", 0)
-        
-        # VIP if spent 50,000+ gold or has VIP item
-        vip_items = user_data.get("inventory", {}).get("vip_pass", 0)
-        return total_spent >= 50000 or vip_items > 0
-    
-    def apply_item_effect(self, user_data: Dict, item_data: Dict):
-        """Apply item effect to user data"""
-        effect = item_data["effect"]
-        effect_type = effect["type"]
-        
-        if effect_type == "heal":
-            # Add to inventory for later use
-            inventory = user_data.setdefault("inventory", {})
-            item_id = "healing_potion"
-            inventory[item_id] = inventory.get(item_id, 0) + 1
-        
-        elif effect_type == "xp":
-            user_data["xp"] = user_data.get("xp", 0) + effect["value"]
-        
-        elif effect_type == "stat_boost":
-            # Apply to strongest character
-            characters = user_data.get("claimed_waifus", [])
-            if characters:
-                strongest = max(characters, key=lambda c: c.get("potential", 0))
-                stat = effect["stat"]
-                strongest[stat] = strongest.get(stat, 0) + effect["value"]
-                strongest["potential"] = strongest.get("potential", 0) + effect["value"] * 10
-        
-        elif effect_type == "access":
-            # Add access permissions
-            permissions = user_data.setdefault("permissions", {})
-            permissions[effect["feature"]] = True
-        
-        elif effect_type == "summon":
-            # Add summon tickets
-            inventory = user_data.setdefault("inventory", {})
-            inventory["summon_ticket"] = inventory.get("summon_ticket", 0) + 1
-        
-        elif effect_type == "affection":
-            # Apply to random character
-            characters = user_data.get("claimed_waifus", [])
-            if characters:
-                random_char = random.choice(characters)
-                random_char["affection"] = random_char.get("affection", 0) + effect["value"]
-        
-        elif effect_type == "random_rewards":
-            # Open mystery box
-            self.open_mystery_box(user_data)
-    
-    def open_mystery_box(self, user_data: Dict):
-        """Open mystery box and give random rewards"""
-        possible_rewards = [
-            {"type": "gold", "amount": random.randint(1000, 5000)},
-            {"type": "xp", "amount": random.randint(500, 2000)},
-            {"type": "gems", "amount": random.randint(10, 50)},
-            {"type": "item", "item": random.choice(list(self.store_items.keys()))}
-        ]
-        
-        # Give 2-4 random rewards
-        reward_count = random.randint(2, 4)
-        for _ in range(reward_count):
-            reward = random.choice(possible_rewards)
-            
-            if reward["type"] == "gold":
-                user_data["gold"] = user_data.get("gold", 0) + reward["amount"]
-            elif reward["type"] == "xp":
-                user_data["xp"] = user_data.get("xp", 0) + reward["amount"]
-            elif reward["type"] == "gems":
-                user_data["gems"] = user_data.get("gems", 0) + reward["amount"]
-            elif reward["type"] == "item":
-                inventory = user_data.setdefault("inventory", {})
-                inventory[reward["item"]] = inventory.get(reward["item"], 0) + 1
-    
-    def get_effect_description(self, effect: Dict, quantity: int) -> str:
-        """Get human-readable effect description"""
-        effect_type = effect["type"]
-        
-        if effect_type == "heal":
-            return f"Added {quantity}x Healing Potion to inventory"
-        elif effect_type == "xp":
-            total_xp = effect["value"] * quantity
-            return f"Gained {format_number(total_xp)} XP immediately!"
-        elif effect_type == "stat_boost":
-            stat_name = {"atk": "Attack", "def": "Defense", "hp": "Health"}.get(effect["stat"], effect["stat"])
-            total_boost = effect["value"] * quantity
-            return f"Boosted strongest character's {stat_name} by {total_boost}!"
-        elif effect_type == "access":
-            return f"Unlocked access to {effect['feature'].replace('_', ' ').title()}!"
-        elif effect_type == "summon":
-            return f"Added {quantity}x Summon Ticket with double rare rates!"
-        elif effect_type == "affection":
-            total_affection = effect["value"] * quantity
-            return f"Increased random character's affection by {total_affection}!"
-        elif effect_type == "random_rewards":
-            return f"Opened {quantity}x Mystery Box with random treasures!"
-        else:
-            return "Item effect applied!"
-    
-    def update_daily_pricing(self):
-        """Update daily pricing data"""
-        game_data = data_manager.get_game_data()
-        store_data = game_data.setdefault("store_data", {})
-        daily_data = store_data.setdefault("daily_purchases", {})
-        
-        today = datetime.now(timezone.utc).date().isoformat()
-        
-        # Reset if new day
-        if daily_data.get("date") != today:
-            daily_data = {
-                "date": today,
-                "item_counts": {},
-                "reset_time": datetime.now(timezone.utc).isoformat()
-            }
-            store_data["daily_purchases"] = daily_data
-            data_manager.save_game_data(game_data)
-    
-    def update_purchase_stats(self, user_data: Dict, item_id: str, quantity: int, total_cost: int):
-        """Update user purchase statistics"""
-        # Update user stats
-        purchase_stats = user_data.setdefault("purchase_stats", {})
-        purchase_stats["total_purchases"] = purchase_stats.get("total_purchases", 0) + quantity
-        purchase_stats["total_gold_spent"] = purchase_stats.get("total_gold_spent", 0) + total_cost
-        
-        # Update global store data
-        game_data = data_manager.get_game_data()
-        store_data = game_data.setdefault("store_data", {})
-        daily_data = store_data.setdefault("daily_purchases", {})
-        item_counts = daily_data.setdefault("item_counts", {})
-        
-        item_counts[item_id] = item_counts.get(item_id, 0) + quantity
-        data_manager.save_game_data(game_data)
-    
-    async def log_store_activity(self, ctx, activity_type: str, details: str = ""):
-        """Log store activity to history channel"""
+            print(f"Buy item error: {e}")
+
+    @commands.command(name="inventory")
+    async def view_inventory(self, ctx):
+        """View your current inventory."""
         try:
-            history_channel = discord.utils.get(ctx.guild.text_channels, name='history')
-            if not history_channel:
+            from core.data_manager import data_manager
+
+            user_id = str(ctx.author.id)
+            user_data = data_manager.get_user_data(user_id)
+            inventory = user_data.get("inventory", {})
+
+            if not inventory:
+                embed = self.embed_builder.warning_embed("Empty Inventory", "You don't have any items yet.")
+                await ctx.send(embed=embed)
                 return
-            
-            emojis = ["🏪", "💰", "🛍️", "💎", "✨", "🎁"]
-            emoji = random.choice(emojis)
-            
-            if activity_type == "browse":
-                message = f"{emoji} **{ctx.author.display_name}** browsed the mystical marketplace on {details}!"
-            elif activity_type == "purchase":
-                message = f"{emoji} **{ctx.author.display_name}** acquired {details} from the enchanted store!"
-            elif activity_type == "inventory_check":
-                message = f"{emoji} **{ctx.author.display_name}** examined their treasure inventory!"
-            else:
-                message = f"{emoji} **{ctx.author.display_name}** visited the magical store!"
-            
+
             embed = self.embed_builder.create_embed(
-                description=message,
-                color=0x32CD32
+                title="📦 Your Inventory",
+                description=f"You have {len(inventory)} different item(s)",
+                color=0x00AA00,
             )
-            
-            await history_channel.send(embed=embed)
-            
+
+            for item_id, quantity in sorted(inventory.items()):
+                item = self.store_service.get_item(item_id)
+                if item:
+                    embed.add_field(
+                        name=item["name"],
+                        value=f"Quantity: **{quantity}**",
+                        inline=True,
+                    )
+                else:
+                    embed.add_field(
+                        name=item_id,
+                        value=f"Quantity: **{quantity}** (item not found in catalog)",
+                        inline=True,
+                    )
+
+            embed.set_footer(text="Use !store to browse more items")
+            await ctx.send(embed=embed)
+
         except Exception as e:
-            print(f"Error logging store activity: {e}")
+            embed = self.embed_builder.error_embed("Inventory Error", f"Unable to load inventory: {str(e)}")
+            await ctx.send(embed=embed)
+            print(f"Inventory error: {e}")
+
+    @commands.command(name="ledger")
+    async def view_ledger(self, ctx, limit: int = 10):
+        """View your purchase history and transaction ledger."""
+        try:
+            user_id = str(ctx.author.id)
+            txs = self.store_service.get_ledger(user_id, limit=limit, offset=0)
+
+            if not txs:
+                embed = self.embed_builder.info_embed("No Transactions", "You haven't made any purchases yet.")
+                await ctx.send(embed=embed)
+                return
+
+            embed = self.embed_builder.create_embed(
+                title="📋 Purchase Ledger",
+                description=f"Last {len(txs)} transactions",
+                color=0x9370DB,
+            )
+
+            for tx in txs[-10:]:  # Show last 10
+                created = tx.get("created_at", "Unknown")
+                status = tx.get("status", "UNKNOWN")
+                item_id = tx.get("item_id", "?")
+                qty = tx.get("quantity", 1)
+                currency = tx.get("currency", "gold")
+
+                status_emoji = {
+                    "COMMITTED": "✅",
+                    "PENDING": "⏳",
+                    "PENDING_OFFLINE": "📡",
+                    "FAILED": "❌",
+                }.get(status, "❓")
+
+                embed.add_field(
+                    name=f"{status_emoji} {item_id} × {qty}",
+                    value=f"Status: **{status}**\nTime: {created}\nCurrency: {currency}",
+                    inline=False,
+                )
+
+            embed.set_footer(text="Transaction ID can be used for support inquiries")
+            await ctx.send(embed=embed)
+
+        except Exception as e:
+            embed = self.embed_builder.error_embed("Ledger Error", f"Unable to load ledger: {str(e)}")
+            await ctx.send(embed=embed)
+            print(f"Ledger error: {e}")
+
+    # ===== ADMIN COMMANDS =====
+
+    @commands.command(name="store_restock", hidden=True)
+    @commands.check(is_admin)
+    async def admin_restock(self, ctx, item_id: str, amount: int):
+        """[ADMIN] Restock an item."""
+        try:
+            if amount < 0:
+                embed = self.embed_builder.warning_embed("Invalid Amount", "Amount must be positive.")
+                await ctx.send(embed=embed)
+                return
+
+            updated = self.store_service.restock_item(str(ctx.author.id), item_id, amount)
+            embed = self.embed_builder.success_embed(
+                "Item Restocked",
+                f"**{updated['name']}** stock is now {format_number(updated.get('stock', 'infinite'))}",
+            )
+            await ctx.send(embed=embed)
+
+        except ValueError as e:
+            embed = self.embed_builder.warning_embed("Error", str(e))
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = self.embed_builder.error_embed("Admin Error", str(e))
+            await ctx.send(embed=embed)
+
+    @commands.command(name="store_setprice", hidden=True)
+    @commands.check(is_admin)
+    async def admin_setprice(self, ctx, item_id: str, gold: int = 0, gems: int = 0):
+        """[ADMIN] Set item price (both gold and gems)."""
+        try:
+            if gold < 0 or gems < 0:
+                embed = self.embed_builder.warning_embed("Invalid Price", "Prices must be non-negative.")
+                await ctx.send(embed=embed)
+                return
+
+            new_price = {"gold": gold, "gems": gems}
+            updated = self.store_service.set_price(str(ctx.author.id), item_id, new_price)
+
+            embed = self.embed_builder.success_embed(
+                "Price Updated",
+                f"**{updated['name']}** price: {gold} gold, {gems} gems",
+            )
+            await ctx.send(embed=embed)
+
+        except ValueError as e:
+            embed = self.embed_builder.warning_embed("Error", str(e))
+            await ctx.send(embed=embed)
+        except Exception as e:
+            embed = self.embed_builder.error_embed("Admin Error", str(e))
+            await ctx.send(embed=embed)
+
+    @commands.command(name="store_sync", hidden=True)
+    @commands.check(is_admin)
+    async def admin_sync_pending(self, ctx):
+        """[ADMIN] Sync pending offline transactions to the provider."""
+        try:
+            report = self.store_service.sync_pending_transactions()
+
+            embed = self.embed_builder.create_embed(
+                title="Sync Report",
+                description="Pending transaction sync completed",
+                color=0x0099CC,
+            )
+            embed.add_field(name="Applied", value=format_number(report["applied"]), inline=True)
+            embed.add_field(name="Retried", value=format_number(report["retry"]), inline=True)
+            embed.add_field(name="Failed", value=format_number(report["failed"]), inline=True)
+
+            if report["errors"]:
+                error_text = "\n".join(report["errors"][:5])  # Show first 5 errors
+                embed.add_field(name="Errors", value=f"```{error_text}```", inline=False)
+
+            await ctx.send(embed=embed)
+
+        except Exception as e:
+            embed = self.embed_builder.error_embed("Sync Error", str(e))
+            await ctx.send(embed=embed)
+
 
 async def setup(bot):
     """Setup function for loading the cog"""

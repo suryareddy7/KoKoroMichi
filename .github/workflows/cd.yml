@@ -1,0 +1,27 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_REGISTRY }}/kokoromichi:${{ github.sha }}
+      - name: Deploy hook
+        run: curl -X POST -H 'Authorization: Bearer $DEPLOY_TOKEN' ${{ secrets.DEPLOY_HOOK_URL }}
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}

@@ -51,24 +51,4 @@ Your KoKoroMichi bot has been successfully upgraded from v10.2 basic to the adva
 - **Rich Embeds**: Beautiful command responses
 - **Data Persistence**: Reliable save/load system
 
-## 💡 Usage Examples
-
-```
-!help           - Show all commands
-!summon         - Summon new characters
-!profile        - View your profile
-!battle         - Start a battle
-!economy        - View economy commands
-!events         - See current events
-!admin          - Admin commands (if authorized)
-```
-
-## 🎯 Success Metrics
-
-- ✅ 100% module load success rate
-- ✅ All JSON data access working
-- ✅ No import errors
-- ✅ Full Discord.py v2.6+ compatibility
-- ✅ Comprehensive command coverage
-
-Your advanced KoKoroMichi bot is now ready for deployment! 🌸
+... (omitted for brevity)

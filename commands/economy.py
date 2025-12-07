@@ -6,6 +6,7 @@ import random
 from datetime import datetime, timedelta
 
 from core.data_manager import data_manager
+from core.provider_manager import get_user_async, save_user_async
 from core.embed_utils import EmbedBuilder
 from utils.helpers import format_number, validate_amount, is_on_cooldown
 
@@ -80,7 +81,12 @@ class EconomyCommands(commands.Cog):
     async def view_businesses(self, ctx):
         """View your business portfolio and accumulated income"""
         try:
-            user_data = data_manager.get_user_data(str(ctx.author.id))
+            try:
+                user_data = await get_user_async(str(ctx.author.id))
+                if user_data is None:
+                    user_data = data_manager.get_user_data(str(ctx.author.id))
+            except Exception:
+                user_data = data_manager.get_user_data(str(ctx.author.id))
             investments = user_data.get("investments", {})
             
             if not investments:
@@ -200,7 +206,10 @@ class EconomyCommands(commands.Cog):
             
             # Add gold to user
             user_data["gold"] = user_data.get("gold", 0) + total_collected
-            data_manager.save_user_data(str(ctx.author.id), user_data)
+            try:
+                await save_user_async(str(ctx.author.id), user_data)
+            except Exception:
+                data_manager.save_user_data(str(ctx.author.id), user_data)
             
             # Create collection result embed
             embed = self.create_collection_embed(business_details, total_collected)

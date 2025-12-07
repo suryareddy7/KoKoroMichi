@@ -5,6 +5,7 @@ from typing import Optional
 import asyncio
 
 from core.data_manager import data_manager
+from core.provider_manager import get_user_async, save_user_async
 from core.embed_utils import EmbedBuilder
 from utils.helpers import format_number, calculate_level_from_xp, create_progress_bar
 
@@ -20,12 +21,22 @@ class ProfileCommands(commands.Cog):
         """Display user profile with stats and collection info"""
         try:
             target_user = member or ctx.author
-            user_data = data_manager.get_user_data(str(target_user.id))
-            
+            # Prefer new async provider when available; fall back to legacy data_manager
+            try:
+                user_data = await get_user_async(str(target_user.id))
+                if user_data is None:
+                    # If provider returns None, create default via legacy manager
+                    user_data = data_manager.get_user_data(str(target_user.id))
+            except Exception:
+                user_data = data_manager.get_user_data(str(target_user.id))
+
             # Update user name if not set
             if not user_data.get("name"):
                 user_data["name"] = target_user.display_name
-                data_manager.save_user_data(str(target_user.id), user_data)
+                try:
+                    await save_user_async(str(target_user.id), user_data)
+                except Exception:
+                    data_manager.save_user_data(str(target_user.id), user_data)
             
             # Create profile embed
             embed = self.create_profile_embed(user_data, target_user)

@@ -6,6 +6,7 @@ import random
 from datetime import datetime, timedelta
 
 from core.data_manager import data_manager
+from core.provider_manager import get_user_async, save_user_async
 from core.embed_utils import EmbedBuilder
 from utils.helpers import format_number, is_on_cooldown
 
@@ -58,7 +59,12 @@ class DailyCommands(commands.Cog):
     async def daily_reward(self, ctx):
         """Claim your daily login reward"""
         try:
-            user_data = data_manager.get_user_data(str(ctx.author.id))
+            try:
+                user_data = await get_user_async(str(ctx.author.id))
+                if user_data is None:
+                    user_data = data_manager.get_user_data(str(ctx.author.id))
+            except Exception:
+                user_data = data_manager.get_user_data(str(ctx.author.id))
             
             # Check if already claimed today
             last_daily = user_data.get("last_daily_claim")
@@ -102,7 +108,10 @@ class DailyCommands(commands.Cog):
             user_data["total_daily_claims"] += 1
             
             # Save user data
-            data_manager.save_user_data(str(ctx.author.id), user_data)
+            try:
+                await save_user_async(str(ctx.author.id), user_data)
+            except Exception:
+                data_manager.save_user_data(str(ctx.author.id), user_data)
             
             # Create reward embed
             embed = self.create_daily_reward_embed(

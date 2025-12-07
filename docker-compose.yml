@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: kokoromichi-bot
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      PROVIDER: ${PROVIDER:-local}
+      DATA_DIR: /app/data
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/kokoromichi}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://user:password@postgres:5432/kokoromichi}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - mongo
+      - postgres
+    restart: unless-stopped
+    networks:
+      - kokoromichi-net
+
+  # MongoDB (optional, comment out if not using)
+  mongo:
+    image: mongo:latest
+    container_name: kokoromichi-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: kokoromichi
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - kokoromichi-net
+    restart: unless-stopped
+
+  # PostgreSQL (optional, comment out if not using)
+  postgres:
+    image: postgres:15-alpine
+    container_name: kokoromichi-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: kokoromichi
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - kokoromichi-net
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  postgres-data:
+
+networks:
+  kokoromichi-net:
+    driver: bridge

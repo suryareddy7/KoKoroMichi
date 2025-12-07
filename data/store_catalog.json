@@ -1,0 +1,61 @@
+{
+  "items": {
+    "health_potion_small": {
+      "id": "health_potion_small",
+      "name": "Health Potion (Small)",
+      "description": "Restores a small amount of HP.",
+      "categories": ["consumable", "healing"],
+      "base_price": {"gold": 500, "gems": 0},
+      "stock": null,
+      "max_per_user": 99,
+      "cooldown_seconds": 0,
+      "inflation_rate": 0.0,
+      "total_sold": 0,
+      "version": 1,
+      "metadata": {"heal_amount": 200}
+    },
+    "experience_scroll": {
+      "id": "experience_scroll",
+      "name": "Experience Scroll",
+      "description": "Grants bonus experience to a character.",
+      "categories": ["consumable", "xp"],
+      "base_price": {"gold": 1200, "gems": 0},
+      "stock": 1000,
+      "max_per_user": 10,
+      "cooldown_seconds": 0,
+      "inflation_rate": 0.001,
+      "total_sold": 0,
+      "version": 1,
+      "metadata": {"xp_amount": 1000}
+    },
+    "treasure_chest": {
+      "id": "treasure_chest",
+      "name": "Treasure Chest",
+      "description": "Contains random loot; rare items possible.",
+      "categories": ["loot", "special"],
+      "base_price": {"gold": 5000, "gems": 25},
+      "stock": 100,
+      "max_per_user": 5,
+      "cooldown_seconds": 0,
+      "inflation_rate": 0.02,
+      "total_sold": 0,
+      "version": 1,
+      "metadata": {"rarity_tier": "rare"}
+    },
+    "lucky_charm": {
+      "id": "lucky_charm",
+      "name": "Lucky Charm",
+      "description": "Increases your drop luck for a limited time.",
+      "categories": ["buff", "special"],
+      "base_price": {"gold": 1500, "gems": 10},
+      "stock": 250,
+      "max_per_user": 3,
+      "cooldown_seconds": 86400,
+      "inflation_rate": 0.005,
+      "total_sold": 0,
+      "version": 1,
+      "metadata": {"luck_bonus": 0.05}
+    }
+  },
+  "last_updated": "2025-12-06T00:00:00Z"
+}
