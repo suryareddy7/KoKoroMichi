@@ -236,7 +236,7 @@ class StoreCommands(commands.Cog):
             await ctx.send(embed=embed)
             print(f"Buy item error: {e}")
 
-    @commands.command(name="inventory")
+    @commands.command(name="store_inventory", aliases=["store_inv", "store_items"])
     async def view_inventory(self, ctx):
         """View your current inventory."""
         try:

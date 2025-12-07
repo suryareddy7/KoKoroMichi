@@ -12,11 +12,16 @@ import logging
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 import discord
 from discord.ext import commands
 
 from core.logging_config import configure_logging
 from core.provider_manager import get_provider
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging early
 configure_logging()
